@@ -4,6 +4,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DataTypes.fs" />
     <Compile Include="Key.fs" />
     <Compile Include="Keyboard.fs" />
     <Compile Include="Display.fs" />
