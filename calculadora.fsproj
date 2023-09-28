@@ -8,6 +8,8 @@
     <Compile Include="Key.fs" />
     <Compile Include="Keyboard.fs" />
     <Compile Include="Display.fs" />
+    <Compile Include="Cpu.fs" />
+    <Compile Include="Calculator.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
 </Project>

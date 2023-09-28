@@ -21,5 +21,5 @@ type Operation =
 | Equals
 
 type KeyType =
-| Operation
-| Number
+| Operation of Operation
+| Number of Number
