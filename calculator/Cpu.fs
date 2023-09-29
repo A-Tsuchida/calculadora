@@ -6,14 +6,14 @@ type Cpu () as this =
   [<DefaultValue>] val mutable private onSendData: DataHandler Option
   [<DefaultValue>] val mutable private onSendSignal: SignalHandler Option
   [<DefaultValue>] val mutable private onSendError: ErrorHandler Option
-  [<DefaultValue>] val mutable private operation: Operation
+  [<DefaultValue>] val mutable private operation: Operation Option
   [<DefaultValue>] val mutable private accumulator: float
   [<DefaultValue>] val mutable private current: float
   [<DefaultValue>] val mutable private resetCurrent: bool
   [<DefaultValue>] val mutable private decimalCount: int
 
   do
-    this.operation <- Equals
+    this.operation <- None
     this.accumulator <- 0
     this.current <- 0
     this.resetCurrent <- false
@@ -46,36 +46,37 @@ type Cpu () as this =
       | Some evt -> evt this.current
       | None -> ()
     | Operation op ->
-      if op = Dot
-      then
-        if this.resetCurrent
-        then
-          this.current <- 0
-          this.resetCurrent <- false
-        this.decimalCount <- 1
-      else
-        this.Calculate op
+      match this.operation with
+      | Some _ -> this.Calculate op
+      | None ->
+        this.operation <- Some op
+        this.resetCurrent <- true
+    | Control co ->
+      match co with
+      | On
+      | Off
+      | ClearError
+      | Memory
+      | MemoryReadClear
+      | MemorySum
+      | MemorySubtraction
+      | Equal -> this.Calculate this.operation
+      | Decimal
 
   member private _.Calculate ``type`` =
     match ``type`` with
     | Multiply ->
       this.accumulator <- this.accumulator * this.current
-      this.resetCurrent <- true
-      this.operation <- Multiply
+      this.operation <- Some Multiply
     | Divide ->
       this.accumulator <- this.accumulator / this.current
-      this.resetCurrent <- true
-      this.operation <- Divide
+      this.operation <- Some Divide
     | Sum ->
       this.accumulator <- this.accumulator + this.current
-      this.resetCurrent <- true
-      this.operation <- Sum
+      this.operation <- Some Sum
     | Subtraction ->
       this.accumulator <- this.accumulator - this.current
-      this.resetCurrent <- true
-      this.operation <- Subtraction
-    | Dot ->
-      raise (System.ArgumentOutOfRangeException "Invalid Operation for current state")
-    | Equals ->
-      this.Calculate this.operation
+      this.operation <- Some Subtraction
+    this.resetCurrent <- true
+    this.current <- this.accumulator
 

@@ -16,7 +16,8 @@
 			"extensions": [
 				"Ionide.Ionide-fsharp",
 				"ms-dotnettools.csharp",
-				"ms-vscode.vs-keybindings"
+				"ms-vscode.vs-keybindings",
+				"eamodio.gitlens"
 			]
 		}
 	},
