@@ -9,7 +9,7 @@ type Keyboard () as this =
   do
     this.keys <- List.Empty
 
-  member public _.SetDataHandler event =
+  member public _.SetOperationHandler event =
     this.sendData <- event
 
   member public _.Add (key: Key) =
