@@ -7,10 +7,12 @@ open Display
 type Calculator (cpu: Cpu, keyboard: Keyboard, display: Display) as this =
 
     do
-        cpu.SetDataHandler (Some display.SetNumber)
+        cpu.SetNumberHandler (Some display.Add)
+        cpu.SetDecimalHandler (Some display.SetDecimal)
         cpu.SetErrorHandler (Some display.SetError)
         cpu.SetSignalHandler (Some display.SetSignal)
-        keyboard.SetDataHandler (Some cpu.DoAction)
+        cpu.SetClearHandler (Some display.Clear)
+        keyboard.SetOperationHandler (Some cpu.Process)
 
     member public _.Keyboard
         with get () = this.Keyboard
