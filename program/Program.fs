@@ -19,11 +19,9 @@ cpu.SetSignalHandler (Some display.SetSignal)
 cpu.SetClearHandler (Some display.Clear)
 
 Control On |> cpu.Process
-Number Two |> cpu.Process
-Number Zero |> cpu.Process
+Number Five |> cpu.Process
+Operation Sum |> cpu.Process
+Number Five |> cpu.Process
 Operation Multiply |> cpu.Process
-Number Zero |> cpu.Process
-Control Decimal |> cpu.Process
-Number One |> cpu.Process
-Number One |> cpu.Process
+Number Two |> cpu.Process
 Control Equal |> cpu.Process
