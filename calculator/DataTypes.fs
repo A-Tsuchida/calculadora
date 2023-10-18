@@ -15,13 +15,14 @@ type Number =
 type Control =
 | On
 | Off
-| ClearError
+| ClearEntry
 | Memory
 | MemoryReadClear
 | MemorySum
 | MemorySubtraction
 | Equal
 | Decimal
+| InvertSignal
 
 type Operation =
 | Multiply

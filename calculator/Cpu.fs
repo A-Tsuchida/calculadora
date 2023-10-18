@@ -5,30 +5,28 @@ open Display
 type Cpu () as this =
   [<DefaultValue>] val mutable private isOn: bool
 
-  [<DefaultValue>] val mutable private onSendNumber: DataHandler Option
+  [<DefaultValue>] val mutable private onSendData: DataHandler Option
+  [<DefaultValue>] val mutable private onSendNumber: NumberHandler Option
   [<DefaultValue>] val mutable private onSendDecimal: DecimalHandler Option
   [<DefaultValue>] val mutable private onSendSignal: SignalHandler Option
   [<DefaultValue>] val mutable private onSendError: ErrorHandler Option
-  [<DefaultValue>] val mutable private onSendClear: (unit -> unit) Option
+  [<DefaultValue>] val mutable private onSendClear: ClearHandler Option
 
   [<DefaultValue>] val mutable private operation: Operation Option
 
   [<DefaultValue>] val mutable private accumulator: Number List
   [<DefaultValue>] val mutable private accumulatorDecimal: Number List option
   [<DefaultValue>] val mutable private isAccumulatorNegative: bool
+  [<DefaultValue>] val mutable private isError: bool
 
   [<DefaultValue>] val mutable private current: Number List
   [<DefaultValue>] val mutable private currentDecimal: Number List option
+  [<DefaultValue>] val mutable private isCurrentNegative: bool
 
   [<DefaultValue>] val mutable private resetCurrent: bool
 
   do
-    this.operation <- None
-    this.accumulator <- List.Empty
-    this.accumulatorDecimal <- None
-    this.current <- List.empty
-    this.currentDecimal <- None
-    this.resetCurrent <- false
+    this.reset ()
 
   member public _.SetErrorHandler handler =
     this.onSendError <- handler
@@ -44,108 +42,114 @@ type Cpu () as this =
     
   member public _.SetClearHandler handler =
     this.onSendClear <- handler
+    
+  member public _.SetDataHandler handler =
+    this.onSendData <- handler
 
   member public _.Process operation =
-    match operation with
-    | Number n ->
-      if this.isOn then
-        if this.resetCurrent
-        then
-          this.current <- [n]
-          this.currentDecimal <- None
-          this.resetCurrent <- false
-          match this.onSendClear with
-          | Some evt -> evt ()
-          | None -> ()
-        else
-          match this.currentDecimal with
-          | Some dec -> this.currentDecimal <- Some (n :: dec)
-          | None -> this.current <- n :: this.current
-        match this.onSendNumber with
-        | Some evt -> evt n
+    match operation, this.isOn with
+    | Number n, true ->
+      if this.resetCurrent
+      then
+        this.current <- [n]
+        this.currentDecimal <- None
+        this.isCurrentNegative <- false
+        this.resetCurrent <- false
+        match this.onSendClear with
+        | Some evt -> evt ()
         | None -> ()
-    | Operation op ->
-      if this.isOn then
-        match this.operation with
-        | Some _ -> this.Calculate (Some op)
-        | None ->
-          this.operation <- Some op
-          this.accumulator <- this.current
-          this.accumulatorDecimal <- this.currentDecimal
-          this.resetCurrent <- true
-    | Control co ->
+      else
+        match this.currentDecimal with
+        | Some dec -> this.currentDecimal <- Some (n :: dec)
+        | None -> this.current <- n :: this.current
+      match this.onSendNumber with
+      | Some evt -> evt n
+      | None -> ()
+    | Operation op,true ->
+      match this.operation with
+      | Some _ -> 
+        this.Calculate this.operation
+        match this.onSendData, this.onSendClear with
+        | Some evt, Some clear ->
+          clear ()
+          evt this.isError this.isAccumulatorNegative (this.accumulator |> List.rev) (match this.accumulatorDecimal with | Some dec -> dec |> List.rev |> Some | None -> None)
+        | _ -> ()
+      | None ->
+        this.accumulator <- this.current
+        this.accumulatorDecimal <- this.currentDecimal
+        this.resetCurrent <- true
+      this.operation <- Some op
+    | Control co, true ->
       match co with
       | On ->
-        if this.isOn
-        then
-          match this.onSendClear with
-          | Some evt -> evt ()
-          | None -> ()
-        else
-          this.isOn <- true
-      | Off -> 
-        if this.isOn then
+        match this.onSendClear with
+        | Some evt -> evt ()
+        | None -> ()
+      | Off ->
+        match this.onSendClear with
+        | Some evt -> evt ()
+        | None -> ()
+        this.reset ()
+        this.isOn <- false
+      | ClearEntry ->
           ()
-      | ClearError -> 
-        if this.isOn then
+      | Memory ->
           ()
-      | Memory -> 
-        if this.isOn then
+      | MemoryReadClear ->
           ()
-      | MemoryReadClear -> 
-        if this.isOn then
+      | MemorySum ->
           ()
-      | MemorySum -> 
-        if this.isOn then
-          ()
-      | MemorySubtraction -> 
-        if this.isOn then
+      | MemorySubtraction ->
           ()
       | Equal ->
-        if this.isOn then
-          this.Calculate this.operation
-          this.operation <- None
-          match this.onSendNumber, this.onSendDecimal, this.onSendClear with
-          | Some evt, Some evt2, Some clear ->
-            clear ()
-            if this.isAccumulatorNegative then evt2 ()
-            this.accumulator |> List.rev |> List.iter (fun item -> evt item)
-            match this.accumulatorDecimal with
-            | Some dec ->
-              evt2 ()
-              dec |> List.rev |> List.iter (fun item -> evt item)
-            | None () -> ()
-          | _ -> ()
+        this.Calculate this.operation
+        this.operation <- None
+        match this.onSendData, this.onSendClear with
+        | Some evt, Some clear ->
+          clear ()
+          evt this.isError this.isAccumulatorNegative (this.accumulator |> List.rev) (match this.accumulatorDecimal with | Some dec -> dec |> List.rev |> Some | None -> None)
+        | _ -> ()
       | Decimal ->
-        if this.isOn then
-          this.currentDecimal <- Some List.empty
-          match this.onSendDecimal with
-          | Some evt -> evt ()
-          | None -> ()
+        this.currentDecimal <- Some List.empty
+        match this.onSendDecimal with
+        | Some evt -> evt ()
+        | None -> ()
+      | InvertSignal ->
+        this.isCurrentNegative <- not this.isCurrentNegative
+        this.resetCurrent <- false
+    | (co, false) when co = Control On -> this.isOn <- true
+    | _, false -> ()
 
   member private _.Calculate (``type``: Operation Option) =
     match ``type`` with
     | Some op ->
       let a, b = this.ToDecimal this.accumulator this.accumulatorDecimal this.isAccumulatorNegative, this.ToDecimal this.current this.currentDecimal false
-      let result = match op with
-                   | Multiply -> a * b
-                   | Divide -> a / b
-                   | Sum -> a + b
-                   | Subtraction -> a - b
-                   |> this.trimDecimal
-      this.operation <- Some op
-      let parsed = this.ToNumberList result
-      this.isAccumulatorNegative <- result < 0m
-      this.accumulator <- parsed[0]
-      this.accumulatorDecimal <- if parsed.Length > 1
-                                 then match parsed[1] with
-                                      | [] -> None
-                                      | [Zero] -> None
-                                      | value -> Some value
-                                 else None
-      this.resetCurrent <- true
-      this.current <- this.accumulator
-      this.currentDecimal <- this.accumulatorDecimal
+      if b = 0m && op = Divide
+      then
+        this.isError <- true
+        match this.onSendError with
+        | Some evt -> evt true
+        | None -> ()
+      else
+        let result = match op with
+                     | Multiply -> a * b
+                     | Divide -> a / b
+                     | Sum -> a + b
+                     | Subtraction -> a - b
+                     |> this.trimDecimal
+        this.operation <- Some op
+        let parsed = this.ToNumberList result
+        this.isAccumulatorNegative <- result < 0m
+        this.accumulator <- parsed[0]
+        this.accumulatorDecimal <- if parsed.Length > 1
+                                   then match parsed[1] with
+                                        | [] -> None
+                                        | [Zero] -> None
+                                        | value -> Some value
+                                   else None
+        this.resetCurrent <- true
+        this.current <- this.accumulator
+        this.currentDecimal <- this.accumulatorDecimal
     | None -> ()
 
   member private _.ToDecimal (``int``: Number List) (dec: Number List option) isNegative: decimal =
@@ -205,4 +209,19 @@ type Cpu () as this =
                     | _ -> raise (System.InvalidOperationException ("Invalid number"))))
     |> List.ofArray
 
-  member private _.trimDecimal (number: decimal) = (number |> string).TrimEnd('0') |> decimal
+  member private _.trimDecimal (number: decimal) =
+    let numstr = (number |> string)
+    if numstr.Contains('.')
+    then
+      numstr.TrimEnd('0') |> decimal
+    else
+      number
+
+  member private _.reset () =
+    this.operation <- None
+    this.accumulator <- List.Empty
+    this.accumulatorDecimal <- None
+    this.current <- List.empty
+    this.currentDecimal <- None
+    this.resetCurrent <- false
+    this.isError <- false
