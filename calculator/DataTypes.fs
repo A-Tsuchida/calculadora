@@ -16,8 +16,8 @@ type Control =
 | On
 | Off
 | ClearEntry
-| Memory
-| MemoryReadClear
+| MemoryRead
+| MemoryClear
 | MemorySum
 | MemorySubtraction
 | Equal
