@@ -71,8 +71,8 @@ type Cpu () as this =
       | None     -> ()
     | Operation op,true ->
       match this.operation with
-      | Some _ -> 
-        this.Calculate this.operation
+      | Some setOp -> 
+        this.Calculate setOp
         match this.onSendData, this.onSendClear with
         | Some evt, Some clear ->
           clear ()
@@ -112,7 +112,9 @@ type Cpu () as this =
       | MemorySubtraction ->
           ()
       | Equal ->
-        this.Calculate this.operation
+        if this.operation.IsSome
+        then
+          this.Calculate this.operation.Value
         this.operation <- None
         match this.onSendData, this.onSendClear with
         | Some evt, Some clear ->
@@ -130,37 +132,34 @@ type Cpu () as this =
     | (co, false) when co = Control On -> this.isOn <- true
     | _, false -> ()
 
-  member private _.Calculate (``type``: Operation Option) =
-    match ``type`` with
-    | Some op ->
-      let a, b = this.ToDecimal this.accumulator this.accumulatorDecimal this.isAccumulatorNegative, this.ToDecimal this.current this.currentDecimal false
-      if b = 0m && op = Divide
-      then
-        this.isError <- true
-        match this.onSendError with
-        | Some evt -> evt true
-        | None -> ()
-      else
-        let result = match op with
-                     | Multiply    -> a * b
-                     | Divide      -> a / b
-                     | Sum         -> a + b
-                     | Subtraction -> a - b
-                     |> this.trimDecimal
-        this.operation <- Some op
-        let parsed = this.ToNumberList result |> List.map (fun lst -> List.rev lst)
-        this.isAccumulatorNegative <- result < 0m
-        this.accumulator <- parsed[0]
-        this.accumulatorDecimal <- if parsed.Length > 1
-                                   then match parsed[1] with
-                                        | []     -> None
-                                        | [Zero] -> None
-                                        | value  -> Some value
-                                   else None
-        this.resetCurrent <- true
-        this.current <- this.accumulator
-        this.currentDecimal <- this.accumulatorDecimal
-    | None -> ()
+  member private _.Calculate (operation: Operation) =
+    let a, b = this.ToDecimal this.accumulator this.accumulatorDecimal this.isAccumulatorNegative, this.ToDecimal this.current this.currentDecimal this.isCurrentNegative
+    if b = 0m && operation = Divide
+    then
+      this.isError <- true
+      match this.onSendError with
+      | Some evt -> evt true
+      | None -> ()
+    else
+      let result = match operation with
+                   | Multiply    -> a * b
+                   | Divide      -> a / b
+                   | Sum         -> a + b
+                   | Subtraction -> a - b
+                   |> this.trimDecimal
+      this.operation <- Some operation
+      let parsed = this.ToNumberList result |> List.map (fun lst -> List.rev lst)
+      this.isAccumulatorNegative <- result < 0m
+      this.accumulator <- parsed[0]
+      this.accumulatorDecimal <- if parsed.Length > 1
+                                  then match parsed[1] with
+                                       | []     -> None
+                                       | [Zero] -> None
+                                       | value  -> Some value
+                                  else None
+      this.resetCurrent <- true
+      this.current <- this.accumulator
+      this.currentDecimal <- this.accumulatorDecimal
 
   member private _.ToDecimal (``int``: Number list) (dec: Number list option) isNegative: decimal =
     let rec ``process`` isDecimal (number: Number list) =
