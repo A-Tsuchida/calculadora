@@ -9,7 +9,7 @@ namespace Calculator.DataTypes;
 public delegate void KeyHandler(KeyType key);
 public delegate void NumberHandler(Number number);
 public delegate void DecimalHandler();
-public delegate void SignalHandler();
+public delegate void NegativeHandler();
 public delegate void ErrorHandler();
 public delegate void ClearHandler();
 public delegate void DataHandler(bool isError, bool isNegative, Number[] integral, Number[] @decimal);
