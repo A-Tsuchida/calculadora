@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Calculator;
-public record Key(string Symbol, KeyType Type)
+public record Key(string Symbol, KeyType Type) : IKey
 {
     private KeyHandler? keyHandler;
 
