@@ -43,5 +43,5 @@ public class Keyboard : IKeyboard
         key.KeyHandlerEvent -= keyHandler;
     }
 
-    public IKey? GetKey(string symbol) => keys.FirstOrDefault(key => key.Symbol == symbol);
+    public IKey GetKey(string symbol) => keys.First(key => key.Symbol == symbol);
 }

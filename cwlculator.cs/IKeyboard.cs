@@ -7,6 +7,7 @@ public interface IKeyboard
 
     /// <exception cref="ArgumentException">Key with <see cref="IKey.Symbol"/> already exists in the <see cref="IKeyboard"/></exception>
     void Add(IKey key);
-    IKey? GetKey(string symbol);
+    /// <exception cref="InvalidOperationException"><see cref="IKey"/> not found</exception>
+    IKey GetKey(string symbol);
     void Remove(IKey key);
 }
