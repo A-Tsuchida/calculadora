@@ -9,8 +9,8 @@ public record KeyType()
 {
     public record Operation(DataTypes.Operation Value) : KeyType;
 
-    public record Number(DataTypes.Number Value) : KeyType;
+    public record Number(DataTypes.Number Value)       : KeyType;
 
-    public record Control(DataTypes.Control Value) : KeyType;
+    public record Control(DataTypes.Control Value)     : KeyType;
 
 }

@@ -5,15 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Calculator.DataTypes;
-public abstract record Operation
+public abstract class Operation
 {
-    public static readonly Multiply MULTIPLICATION = new();
-    public static readonly Divide DIVISION         = new();
-    public static readonly Sum SUM                 = new();
-    public static readonly Subtraction SUBTRACTION = new();
-
-    public record Multiply    : Operation;
-    public record Divide      : Operation;
-    public record Sum         : Operation;
-    public record Subtraction : Operation;
+    public class Multiply    : Operation;
+    public class Divide      : Operation;
+    public class Sum         : Operation;
+    public class Subtraction : Operation;
 }
