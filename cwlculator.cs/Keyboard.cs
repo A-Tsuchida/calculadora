@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Calculator;
-public class Keyboard
+public class Keyboard : IKeyboard
 {
-    private IEnumerable<Key> keys = [];
+    private IEnumerable<IKey> keys = [];
 
     private KeyHandler? keyHandler;
 
@@ -29,16 +29,19 @@ public class Keyboard
         }
     }
 
-    public void Add(Key key)
+    public void Add(IKey key)
     {
+        if (keys.Any(keys => keys.Symbol == key.Symbol))
+            throw new ArgumentException($"There is already a key with the symbol '{key.Symbol}' in {nameof(Keyboard)}.", nameof(key));
+
         keys = keys.Append(key);
     }
 
-    public void Remove(Key key)
+    public void Remove(IKey key)
     {
-        keys = keys.Where(k => k != key);
+        keys = keys.Where(k => !k.Equals(key));
         key.KeyHandlerEvent -= keyHandler;
     }
 
-    public Key? GetKey(string symbol) => keys.FirstOrDefault(key => key.Symbol == symbol);
+    public IKey? GetKey(string symbol) => keys.FirstOrDefault(key => key.Symbol == symbol);
 }
