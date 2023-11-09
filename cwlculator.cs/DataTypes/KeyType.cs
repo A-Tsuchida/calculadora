@@ -12,5 +12,4 @@ public record KeyType()
     public record Number(DataTypes.Number Value)       : KeyType;
 
     public record Control(DataTypes.Control Value)     : KeyType;
-
 }
