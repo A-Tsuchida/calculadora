@@ -2,7 +2,7 @@ using Calculator.DataTypes;
 
 namespace Calculator;
 
-class Cpu
+public class Cpu
 {
     protected bool isOn = false;
 
