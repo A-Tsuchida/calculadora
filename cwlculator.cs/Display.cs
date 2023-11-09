@@ -14,7 +14,7 @@ public class Display(int maxDigitCount) : IDisplay
 
     public virtual void Add(Number n)
     {
-        if (!hasError || DigitCount >= maxDigitCount) return;
+        if (DigitCount >= maxDigitCount) return;
 
         if (@decimal is not null)
         {
@@ -33,7 +33,7 @@ public class Display(int maxDigitCount) : IDisplay
 
     public virtual void AddRange(IEnumerable<Number> numbers)
     {
-        if (!hasError || DigitCount >= maxDigitCount || !numbers.Any()) return;
+        if (DigitCount >= maxDigitCount || !numbers.Any()) return;
 
         if (@decimal is not null)
         {
@@ -56,19 +56,14 @@ public class Display(int maxDigitCount) : IDisplay
 
     public void SetDecimal()
     {
-        if (!hasError || @decimal is null)
+        if (@decimal is null)
         {
             @decimal = [];
             Print();
         }
     }
 
-    public void SetNegative()
-    {
-        if (!hasError) return;
-
-        isNumberNegative = true;
-    }
+    public void SetNegative() => isNumberNegative = true;
 
     public void SetError() => hasError = true;
 
