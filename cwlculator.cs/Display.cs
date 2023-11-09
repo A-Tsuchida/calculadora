@@ -1,21 +1,21 @@
 ﻿using Calculator.DataTypes;
-using System;
 using static System.Console;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Calculator;
-public class Display
+public class Display(int maxDigitCount) : IDisplay
 {
     protected IEnumerable<Number> integral = [];
     protected IEnumerable<Number>? @decimal;
     protected bool isNumberNegative = false;
     protected bool hasError = false;
 
+    public int MaxDigitCount => maxDigitCount;
+    public int DigitCount => integral.Count() + @decimal?.Count() ?? 0;
+
     public virtual void Add(Number n)
     {
+        if (!hasError || DigitCount >= maxDigitCount) return;
+
         if (@decimal is not null)
         {
             if (@decimal.Last() is Number.Zero && n is Number.Zero)
@@ -31,45 +31,60 @@ public class Display
         Print();
     }
 
-    public virtual void Add(Number[] n)
+    public virtual void AddRange(IEnumerable<Number> numbers)
     {
+        if (!hasError || DigitCount >= maxDigitCount || !numbers.Any()) return;
+
         if (@decimal is not null)
         {
-            if (@decimal.Last() is Number.Zero && n is Number.Zero)
-                return;
-            @decimal = @decimal.Concat(n);
+            @decimal = @decimal.Concat(numbers);
         }
         else
         {
-            if (integral.Last() is Number.Zero && n is Number.Zero)
-                return;
-            integral = integral.Concat(n);
+            if (integral.Count() == 1 && integral.ElementAt(0) is Number.Zero)
+            {
+                if (numbers.All(n => n is Number.Zero)) return;
+                integral = numbers;
+            }
+            else
+            {
+                integral = integral.Concat(numbers);
+            }
         }
         Print();
     }
 
-    public void SetDecimal() => @decimal ??= [];
+    public void SetDecimal()
+    {
+        if (!hasError || @decimal is null)
+        {
+            @decimal = [];
+            Print();
+        }
+    }
 
-    public void SetNegative() => isNumberNegative = true;
+    public void SetNegative()
+    {
+        if (!hasError) return;
+
+        isNumberNegative = true;
+    }
 
     public void SetError() => hasError = true;
 
-    protected string RenderDigit(Number d)
+    protected virtual string RenderDigit(Number d) => d switch
     {
-        return d switch
-        {
-            Number.One   => "1",
-            Number.Two   => "2",
-            Number.Three => "3",
-            Number.Four  => "4",
-            Number.Five  => "5",
-            Number.Six   => "6",
-            Number.Seven => "7",
-            Number.Eight => "8",
-            Number.Nine  => "9",
-            _ => throw ArgumentOutOfRangeException()
-        };
-    }
+        Number.One => "1",
+        Number.Two => "2",
+        Number.Three => "3",
+        Number.Four => "4",
+        Number.Five => "5",
+        Number.Six => "6",
+        Number.Seven => "7",
+        Number.Eight => "8",
+        Number.Nine => "9",
+        _ => throw new ArgumentOutOfRangeException($"'{d}' is not a valid digit.", (Exception?)null)
+    };
 
     protected void Print()
     {
