@@ -12,4 +12,4 @@ public delegate void DecimalHandler();
 public delegate void NegativeHandler();
 public delegate void ErrorHandler();
 public delegate void ClearHandler();
-public delegate void DataHandler(bool isError, bool isNegative, Number[] integral, Number[] @decimal);
+public delegate void DataHandler(IEnumerable<Number> integral, IEnumerable<Number>? @decimal, bool isNegative);

@@ -54,6 +54,14 @@ public class Display(int maxDigitCount) : IDisplay
         Print();
     }
 
+    public virtual void AddNumber(IEnumerable<Number> integral, IEnumerable<Number>? @decimal, bool isNegative)
+    {
+        integral = integral.Take(MaxDigitCount);
+        this.@decimal = @decimal?.Take(MaxDigitCount - integral.Count());
+        isNumberNegative = isNegative;
+        Print();
+    }
+
     public void SetDecimal()
     {
         if (@decimal is null)
