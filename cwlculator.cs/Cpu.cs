@@ -72,6 +72,7 @@ public class Cpu
                 ProcessControl(co.Value);
                 break;
             case KeyType.Number nu:
+                ProcessNumber(nu.Value);
                 break;
             case KeyType.Operation op:
                 if (accumulatorIntegral.Any() && operation is not null)
@@ -140,14 +141,22 @@ public class Cpu
                 break;
             case Control.MemorySum:
             case Control.MemorySubtraction:
+                try
+                {
                 var ans = Calculate(
                     control is Control.MemorySum ? new Operation.Sum() : new Operation.Subtraction(),
-                    new(memoryIntegral, memoryDecimal, isMemoryNegative),
+                        new(memoryIntegral,  memoryDecimal,  isMemoryNegative),
                     new(currentIntegral, currentDecimal, isCurrentNegative)
                 );
                 accumulatorIntegral   = currentIntegral   = memoryIntegral   = ans.Integral;
                 accumulatorDecimal    = currentDecimal    = memoryDecimal    = ans.Decimal;
                 isAccumulatorNegative = isCurrentNegative = isMemoryNegative = ans.IsNegative;
+                }
+                catch
+                {
+                    error = true;
+                    errorHandler?.Invoke();
+                }
                 break;
             case Control.Equal:
                 break;
@@ -158,6 +167,33 @@ public class Cpu
                 isCurrentNegative = !isCurrentNegative;
                 break;
         }
+    }
+
+    protected virtual void ProcessNumber(Number number)
+    {
+        if (currentDecimal is null)
+        {
+            if (currentIntegral.ElementAt(0) is GhostZero)
+            {
+                if (number is Number.Zero)
+                    return;
+                
+                    currentIntegral = [ number ];
+                resetCurrent = false;
+            }
+            else
+            {
+                currentIntegral = currentIntegral.Append(number);
+                resetCurrent    = false;
+            }
+        }
+        else
+        {
+            currentIntegral = currentIntegral.ElementAt(0) is GhostZero
+                            ? ([ number ])
+                            : currentIntegral.Append(number);
+        }
+        numberHandler?.Invoke(number);
     }
 
     protected virtual CompleteNumber Calculate(Operation op, CompleteNumber a, CompleteNumber b)

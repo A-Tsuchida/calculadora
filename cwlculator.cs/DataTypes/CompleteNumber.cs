@@ -5,8 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Calculator.DataTypes;
-public record struct CompleteNumber(IEnumerable<Number> Integral, IEnumerable<Number>? Decimal, bool IsNegative)
+public record CompleteNumber(IEnumerable<Number> Integral, IEnumerable<Number>? Decimal, bool IsNegative)
 {
+    public (IEnumerable<Number> integral, IEnumerable<Number>? @decimal, bool isNegative) Deconstruct()
+        => (Integral, Decimal, IsNegative);
+
     public static explicit operator decimal(CompleteNumber number)
     {
         var @int = number.Integral.Select(n => n switch
