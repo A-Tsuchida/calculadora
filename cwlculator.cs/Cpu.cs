@@ -199,10 +199,7 @@ public class Cpu
     /// <summary>
     /// Used for when there's no actual number
     /// </summary>
-    protected class GhostZero : Number
-    {
-        public static explicit operator Zero(GhostZero _) => new();
-    }
+    protected class GhostZero : Number.Zero { }
 
     protected enum ResetOption : byte
     {
