@@ -67,7 +67,7 @@ public class Cpu
         switch (key)
         {
             case KeyType.Control co:
-                if (!isOn && co is { Value: Control.On})
+                if (!isOn && co is not { Value: Control.On})
                     return;
                 ProcessControl(co.Value);
                 break;
