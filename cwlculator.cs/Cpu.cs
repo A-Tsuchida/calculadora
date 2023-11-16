@@ -14,15 +14,15 @@ public class Cpu
 
     private Operation? operation;
 
-    protected IEnumerable<Number> memoryIntegral = [];
+    protected IEnumerable<Number> memoryIntegral = [ new GhostZero() ];
     protected IEnumerable<Number>? memoryDecimal;
     protected bool isMemoryNegative;
 
-    protected IEnumerable<Number> accumulatorIntegral = [];
+    protected IEnumerable<Number> accumulatorIntegral = [ new GhostZero() ];
     protected IEnumerable<Number>? accumulatorDecimal;
     protected bool isAccumulatorNegative;
 
-    protected IEnumerable<Number> currentIntegral = [];
+    protected IEnumerable<Number> currentIntegral = [ new GhostZero() ];
     protected IEnumerable<Number>? currentDecimal;
     protected bool isCurrentNegative;
 
@@ -67,44 +67,10 @@ public class Cpu
         switch (key)
         {
             case KeyType.Control co:
-                if (!isOn && co.Value is not Control.On)
+                if (!isOn && co is { Value: Control.On})
                     return;
-                switch (co.Value)
-                {
-                    case Control.On:
-                        if (!isOn) isOn = true;
-
-                        clearHandler?.Invoke();
-                        Reset(ResetOption.All);
+                ProcessControl(co.Value);
                         break;
-                    case Control.Off:
-                        isOn = false;
-                        break;
-                    case Control.ClearEntry:
-                        Reset(ResetOption.Entry);
-                        break;
-                    case Control.MemoryRead:
-                        accumulatorIntegral = memoryIntegral;
-                        accumulatorDecimal = memoryDecimal;
-                        isAccumulatorNegative = isMemoryNegative;
-                        resetCurrent = true;
-                        break;
-                    case Control.MemoryClear:
-                        Reset(ResetOption.Memory);
-                        break;
-                    case Control.MemorySum:
-
-                        break;
-                    case Control.MemorySubtraction:
-                        break;
-                    case Control.Equal:
-                        break;
-                    case Control.Decimal:
-                        break;
-                    case Control.InvertSignal:
-                        break;
-                }
-                break;
             case KeyType.Number nu:
                 break;
             case KeyType.Operation op:
@@ -147,6 +113,53 @@ public class Cpu
         }
     }
 
+    protected virtual void ProcessControl(Control control)
+    {
+        switch (control)
+        {
+            case Control.On:
+                if (!isOn) isOn = true;
+
+                clearHandler?.Invoke();
+                Reset(ResetOption.All);
+                break;
+            case Control.Off:
+                isOn = false;
+                break;
+            case Control.ClearEntry:
+                Reset(ResetOption.Entry);
+                break;
+            case Control.MemoryRead:
+                accumulatorIntegral = memoryIntegral;
+                accumulatorDecimal = memoryDecimal;
+                isAccumulatorNegative = isMemoryNegative;
+                resetCurrent = true;
+                break;
+            case Control.MemoryClear:
+                Reset(ResetOption.Memory);
+                break;
+            case Control.MemorySum:
+            case Control.MemorySubtraction:
+                var ans = Calculate(
+                    control is Control.MemorySum ? new Operation.Sum() : new Operation.Subtraction(),
+                    new(memoryIntegral, memoryDecimal, isMemoryNegative),
+                    new(currentIntegral, currentDecimal, isCurrentNegative)
+                );
+                accumulatorIntegral   = currentIntegral   = memoryIntegral   = ans.Integral;
+                accumulatorDecimal    = currentDecimal    = memoryDecimal    = ans.Decimal;
+                isAccumulatorNegative = isCurrentNegative = isMemoryNegative = ans.IsNegative;
+                break;
+            case Control.Equal:
+                break;
+            case Control.Decimal:
+                currentDecimal ??= [ new GhostZero() ];
+                break;
+            case Control.InvertSignal:
+                isCurrentNegative = !isCurrentNegative;
+                break;
+        }
+    }
+
     protected virtual CompleteNumber Calculate(Operation op, CompleteNumber a, CompleteNumber b)
     {
         return op switch
@@ -163,24 +176,32 @@ public class Cpu
     {
         if (option == ResetOption.All || option == ResetOption.Entry)
         {
-            currentIntegral = [];
+            currentIntegral = [ new GhostZero() ];
             currentDecimal = null;
             resetCurrent = false;
         }
         if (option == ResetOption.All || option == ResetOption.Memory)
         {
-            memoryIntegral = [];
+            memoryIntegral = [ new GhostZero() ];
             memoryDecimal = null;
             isMemoryNegative = false;
         }
         if (option == ResetOption.All)
         {
-            accumulatorIntegral = [];
+            accumulatorIntegral = [ new GhostZero() ];
             accumulatorDecimal = null;
             isAccumulatorNegative = false;
             error = false;
             operation = null;
         }
+    }
+
+    /// <summary>
+    /// Used for when there's no actual number
+    /// </summary>
+    protected class GhostZero : Number
+    {
+        public static explicit operator Zero(GhostZero _) => new();
     }
 
     protected enum ResetOption : byte
