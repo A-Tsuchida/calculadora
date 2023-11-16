@@ -70,7 +70,7 @@ public class Cpu
                 if (!isOn && co is { Value: Control.On})
                     return;
                 ProcessControl(co.Value);
-                        break;
+                break;
             case KeyType.Number nu:
                 break;
             case KeyType.Operation op:
