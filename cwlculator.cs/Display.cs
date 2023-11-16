@@ -89,7 +89,7 @@ public class Display(int maxDigitCount) : IDisplay
         _ => throw new ArgumentOutOfRangeException($"'{d}' is not a valid digit.", (Exception?)null)
     };
 
-    protected void Print()
+    protected virtual void Print()
     {
         if (hasError)
             Write("\u001B[32m[E] ");
