@@ -61,6 +61,9 @@ public class Cpu
 
     public virtual void Process(KeyType key)
     {
+        if (error && key is not KeyType.Control { Value: Control.On })
+            return;
+
         switch (key)
         {
             case KeyType.Control co:
