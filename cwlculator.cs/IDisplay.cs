@@ -7,7 +7,6 @@ public interface IDisplay
     int MaxDigitCount { get; }
 
     void Add(Number n);
-    void AddRange(IEnumerable<Number> numbers);
     void AddNumber(IEnumerable<Number> integral, IEnumerable<Number>? @decimal, bool isNegative);
     void Clear();
     void SetDecimal();

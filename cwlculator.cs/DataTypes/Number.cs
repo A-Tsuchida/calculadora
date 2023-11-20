@@ -8,14 +8,19 @@ namespace Calculator.DataTypes;
 
 public abstract class Number
 {
-    public class Zero  : Number;
-    public class One   : Number;
-    public class Two   : Number;
-    public class Three : Number;
-    public class Four  : Number;
-    public class Five  : Number;
-    public class Six   : Number;
-    public class Seven : Number;
-    public class Eight : Number;
-    public class Nine  : Number;
+
+    /// <summary>
+    /// Used for when there's no actual number
+    /// </summary>
+    public class GhostZero : Zero;
+    public class Zero      : Number;
+    public class One       : Number;
+    public class Two       : Number;
+    public class Three     : Number;
+    public class Four      : Number;
+    public class Five      : Number;
+    public class Six       : Number;
+    public class Seven     : Number;
+    public class Eight     : Number;
+    public class Nine      : Number;
 }

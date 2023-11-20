@@ -39,7 +39,10 @@ public record CompleteNumber(IEnumerable<Number> Integral, IEnumerable<Number>? 
             _ => 0
         }).Aggregate((acc, cur) => acc + cur) ?? 0;
 
-        return @int + dec / (number.Decimal?.Count() ?? 1);
+        var ans = (decimal)@int;
+        ans += (decimal)dec / (number.Decimal?.Count() ?? 1);
+        if (number.IsNegative) ans *= -1;
+        return ans;
     }
 
     public static explicit operator CompleteNumber(decimal number)
@@ -50,28 +53,28 @@ public record CompleteNumber(IEnumerable<Number> Integral, IEnumerable<Number>? 
             {
                 '1' => new Number.One(),
                 '2' => new Number.Two(),
-                '3' => new Number.Two(),
-                '4' => new Number.Two(),
-                '5' => new Number.Two(),
-                '6' => new Number.Two(),
-                '7' => new Number.Two(),
-                '8' => new Number.Two(),
-                '9' => new Number.Two(),
-                '0' => new Number.Two(),
+                '3' => new Number.Three(),
+                '4' => new Number.Four(),
+                '5' => new Number.Five(),
+                '6' => new Number.Six(),
+                '7' => new Number.Seven(),
+                '8' => new Number.Eight(),
+                '9' => new Number.Nine(),
+                '0' => new Number.Zero(),
                 _ => throw new ArgumentOutOfRangeException()
             }),
             parts.Length == 1 ? null : parts[1].Select<char, Number>(ch => ch switch
             {
                 '1' => new Number.One(),
                 '2' => new Number.Two(),
-                '3' => new Number.Two(),
-                '4' => new Number.Two(),
-                '5' => new Number.Two(),
-                '6' => new Number.Two(),
-                '7' => new Number.Two(),
-                '8' => new Number.Two(),
-                '9' => new Number.Two(),
-                '0' => new Number.Two(),
+                '3' => new Number.Three(),
+                '4' => new Number.Four(),
+                '5' => new Number.Five(),
+                '6' => new Number.Six(),
+                '7' => new Number.Seven(),
+                '8' => new Number.Eight(),
+                '9' => new Number.Nine(),
+                '0' => new Number.Zero(),
                 _ => throw new ArgumentOutOfRangeException()
             }),
             number < 0

@@ -4,7 +4,7 @@ using static System.Console;
 namespace Calculator;
 public class Display(int maxDigitCount) : IDisplay
 {
-    protected IEnumerable<Number> integral = [];
+    protected IEnumerable<Number> integral = [ new Number.GhostZero() ];
     protected IEnumerable<Number>? @decimal;
     protected bool isNumberNegative = false;
     protected bool hasError = false;
@@ -18,46 +18,24 @@ public class Display(int maxDigitCount) : IDisplay
 
         if (@decimal is not null)
         {
-            if (@decimal.Last() is Number.Zero && n is Number.Zero)
-                return;
-            @decimal = @decimal.Append(n);
+            @decimal = @decimal.ElementAt(0) is Number.GhostZero
+                     ? ([ n ])
+                     : @decimal.Append(n);
         }
         else
         {
-            if (integral.Last() is Number.Zero && n is Number.Zero)
-                return;
-            integral = integral.Append(n);
-        }
-        Print();
-    }
-
-    public virtual void AddRange(IEnumerable<Number> numbers)
-    {
-        if (DigitCount >= maxDigitCount || !numbers.Any()) return;
-
-        if (@decimal is not null)
-        {
-            @decimal = @decimal.Concat(numbers);
-        }
-        else
-        {
-            if (integral.Count() == 1 && integral.ElementAt(0) is Number.Zero)
-            {
-                if (numbers.All(n => n is Number.Zero)) return;
-                integral = numbers;
-            }
-            else
-            {
-                integral = integral.Concat(numbers);
-            }
+            if (integral.ElementAt(0) is not Number.GhostZero || n is not Number.Zero)
+                integral = integral.ElementAt(0) is Number.GhostZero
+                         ? ([n])
+                         : integral.Append(n);
         }
         Print();
     }
 
     public virtual void AddNumber(IEnumerable<Number> integral, IEnumerable<Number>? @decimal, bool isNegative)
     {
-        integral = integral.Take(MaxDigitCount);
-        this.@decimal = @decimal?.Take(MaxDigitCount - integral.Count());
+        this.integral = integral.Take(MaxDigitCount);
+        this.@decimal = @decimal?.Take(MaxDigitCount - this.integral.Count());
         isNumberNegative = isNegative;
         Print();
     }
@@ -66,17 +44,26 @@ public class Display(int maxDigitCount) : IDisplay
     {
         if (@decimal is null)
         {
-            @decimal = [];
+            @decimal = [ new Number.GhostZero() ];
             Print();
         }
     }
 
-    public void SetNegative() => isNumberNegative = true;
+    public void SetNegative()
+    {
+        isNumberNegative = true;
+        Print();
+    }
 
-    public void SetError() => hasError = true;
+    public void SetError()
+    {
+        hasError = true;
+        Print();
+    }
 
     protected virtual string RenderDigit(Number d) => d switch
     {
+        Number.GhostZero or Number.Zero => "0",
         Number.One => "1",
         Number.Two => "2",
         Number.Three => "3",
@@ -97,7 +84,7 @@ public class Display(int maxDigitCount) : IDisplay
             Write("\u001B[33m");
 
         if (isNumberNegative)
-            Write("- ");
+            Write("-");
 
         Write(string.Join("", integral.Select(n => RenderDigit(n))));
 
@@ -112,7 +99,7 @@ public class Display(int maxDigitCount) : IDisplay
 
     public virtual void Clear()
     {
-        integral = [];
+        integral = [ new Number.GhostZero() ];
         @decimal = null;
         isNumberNegative = false;
         hasError = false;

@@ -15,15 +15,15 @@ public class Cpu
 
     private Operation? operation;
 
-    protected IEnumerable<Number>  memoryIntegral = [ new GhostZero() ];
+    protected IEnumerable<Number>  memoryIntegral = [ new Number.GhostZero() ];
     protected IEnumerable<Number>? memoryDecimal;
     protected bool isMemoryNegative;
 
-    protected IEnumerable<Number>  accumulatorIntegral = [ new GhostZero() ];
+    protected IEnumerable<Number>  accumulatorIntegral = [ new Number.GhostZero() ];
     protected IEnumerable<Number>? accumulatorDecimal;
     protected bool isAccumulatorNegative;
 
-    protected IEnumerable<Number>  currentIntegral = [ new GhostZero() ];
+    protected IEnumerable<Number>  currentIntegral = [ new Number.GhostZero() ];
     protected IEnumerable<Number>? currentDecimal;
     protected bool isCurrentNegative;
 
@@ -155,7 +155,7 @@ public class Cpu
 
                 break;
             case Control.Decimal:
-                currentDecimal ??= [ new GhostZero() ];
+                currentDecimal ??= [ new Number.GhostZero() ];
                 break;
             case Control.InvertSignal:
                 isCurrentNegative = !isCurrentNegative;
@@ -167,7 +167,7 @@ public class Cpu
     {
         if (currentDecimal is null)
         {
-            if (currentIntegral.ElementAt(0) is GhostZero)
+            if (currentIntegral.ElementAt(0) is Number.GhostZero)
             {
                 if (number is Number.Zero)
                     return;
@@ -183,7 +183,7 @@ public class Cpu
         }
         else
         {
-            currentIntegral = currentIntegral.ElementAt(0) is GhostZero
+            currentIntegral = currentIntegral.ElementAt(0) is Number.GhostZero
                             ? ([ number ])
                             : currentIntegral.Append(number);
         }
@@ -242,30 +242,25 @@ public class Cpu
     {
         if (option == ResetOption.All || option == ResetOption.Entry)
         {
-            currentIntegral = [ new GhostZero() ];
+            currentIntegral = [ new Number.GhostZero() ];
             currentDecimal = null;
             resetCurrent = false;
         }
         if (option == ResetOption.All || option == ResetOption.Memory)
         {
-            memoryIntegral = [ new GhostZero() ];
+            memoryIntegral = [ new Number.GhostZero() ];
             memoryDecimal = null;
             isMemoryNegative = false;
         }
         if (option == ResetOption.All)
         {
-            accumulatorIntegral = [ new GhostZero() ];
+            accumulatorIntegral = [ new Number.GhostZero() ];
             accumulatorDecimal = null;
             isAccumulatorNegative = false;
             error = false;
             operation = null;
         }
     }
-
-    /// <summary>
-    /// Used for when there's no actual number
-    /// </summary>
-    protected class GhostZero : Number.Zero { }
 
     protected enum ResetOption : byte
     {
