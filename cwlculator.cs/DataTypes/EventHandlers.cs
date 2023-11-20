@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Calculator.DataTypes;
 
-public delegate void KeyHandler(KeyType key);
+public delegate void KeyHandler(OpCode key);
 public delegate void NumberHandler(Number number);
 public delegate void DecimalHandler();
 public delegate void NegativeHandler();

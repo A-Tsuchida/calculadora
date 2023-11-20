@@ -4,7 +4,7 @@ namespace Calculator;
 public interface IKey
 {
     string Symbol { get; init; }
-    KeyType Type { get; init; }
+    OpCode Type { get; init; }
 
     event KeyHandler KeyHandlerEvent;
 

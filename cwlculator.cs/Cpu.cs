@@ -66,22 +66,22 @@ public class Cpu
         remove => clearHandler = (ClearHandler?)Delegate.Remove(clearHandler, value);
     }
 
-    public virtual void Process(KeyType key)
+    public virtual void Process(OpCode key)
     {
-        if (error && key is not KeyType.Control { Value: Control.On })
+        if (error && key is not OpCode.Control { Value: Control.On })
             return;
 
         switch (key)
         {
-            case KeyType.Control co:
+            case OpCode.Control co:
                 if (!isOn && co is not { Value: Control.On})
                     return;
                 ProcessControl(co.Value);
                 break;
-            case KeyType.Number nu:
+            case OpCode.Number nu:
                 ProcessNumber(nu.Value);
                 break;
-            case KeyType.Operation op:
+            case OpCode.Operation op:
                 ProcessOperation(op.Value);
                 break;
         }
@@ -232,8 +232,8 @@ public class Cpu
         {
             Operation.Sum => (CompleteNumber)((decimal)a + (decimal)b),
             Operation.Subtraction => (CompleteNumber)((decimal)a - (decimal)b),
-            Operation.Multiply => (CompleteNumber)((decimal)a * (decimal)b),
-            Operation.Divide => (CompleteNumber)((decimal)a / (decimal)b),
+            Operation.Multiplication => (CompleteNumber)((decimal)a * (decimal)b),
+            Operation.Division => (CompleteNumber)((decimal)a / (decimal)b),
             _ => throw new ArgumentOutOfRangeException(),
         };
     }
