@@ -48,7 +48,7 @@ public class Cpu
         remove => negativeHandler = (NegativeHandler?)Delegate.Remove(negativeHandler, value);
     }
 
-    public event NegativeHandler DataEvent
+    public event DataHandler DataEvent
     {
         add    => dataHandler = (DataHandler?)Delegate.Combine(negativeHandler, value);
         remove => dataHandler = (DataHandler?)Delegate.Remove(negativeHandler, value);
@@ -138,8 +138,8 @@ public class Cpu
                     return;
 
                 CompleteNumber
-                    a = new(currentIntegral,     currentDecimal,     isCurrentNegative),
-                    b = new(accumulatorIntegral, accumulatorDecimal, isAccumulatorNegative);
+                    a = new(accumulatorIntegral, accumulatorDecimal, isAccumulatorNegative),
+                    b = new(currentIntegral,     currentDecimal,     isCurrentNegative);
 
                 var result = Calculate(this.operation, a, b);
 
@@ -159,12 +159,19 @@ public class Cpu
                 break;
             case Control.InvertSignal:
                 isCurrentNegative = !isCurrentNegative;
+                negativeHandler?.Invoke();
                 break;
         }
     }
 
     protected virtual void ProcessNumber(Number number)
     {
+        if (resetCurrent)
+        {
+            Reset(ResetOption.Entry);
+            clearHandler?.Invoke();
+        }
+
         if (currentDecimal is null)
         {
             if (currentIntegral.ElementAt(0) is Number.GhostZero)
@@ -195,8 +202,8 @@ public class Cpu
         if (this.operation is not null)
         {
             CompleteNumber
-                a = new(currentIntegral,     currentDecimal,     isCurrentNegative),
-                b = new(accumulatorIntegral, accumulatorDecimal, isAccumulatorNegative);
+                a = new(accumulatorIntegral, accumulatorDecimal, isAccumulatorNegative),
+                b = new(currentIntegral,     currentDecimal,     isCurrentNegative);
 
             try
             {
