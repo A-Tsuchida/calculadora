@@ -140,18 +140,18 @@ public class Cpu : ICpu
 
                 try
                 {
-                CompleteNumber
+                    CompleteNumber
                     a = new(accumulatorIntegral, accumulatorDecimal, isAccumulatorNegative),
                     b = new(currentIntegral,     currentDecimal,     isCurrentNegative);
 
-                var result = Calculate(this.operation, a, b);
+                    var result = Calculate(this.operation, a, b);
 
                     (accumulatorIntegral, accumulatorDecimal, isAccumulatorNegative) = result;
 
-                resetCurrent = true;
+                    resetCurrent = true;
 
-                clearHandler?.Invoke();
-                dataHandler?.Invoke(result.Integral, result.Decimal, result.IsNegative);
+                    clearHandler?.Invoke();
+                    dataHandler?.Invoke(result.Integral, result.Decimal, result.IsNegative);
                 }
                 catch
                 {
@@ -186,7 +186,7 @@ public class Cpu : ICpu
             {
                 if (number is Number.Zero)
                     return;
-                
+
                 currentIntegral = [number];
                 resetCurrent = false;
             }
