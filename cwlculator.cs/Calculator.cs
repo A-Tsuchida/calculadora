@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Calculator;
 public class Calculator
 {
-    private ICpu cpu;
+    private readonly ICpu cpu;
 
     public IDisplay Display { get; }
     public IKeyboard Keyboard { get; }
