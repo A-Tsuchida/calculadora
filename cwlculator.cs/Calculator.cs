@@ -7,16 +7,25 @@ using System.Threading.Tasks;
 namespace Calculator;
 public class Calculator
 {
-    private Cpu cpu;
+    private ICpu cpu;
 
     public IDisplay Display { get; }
     public IKeyboard Keyboard { get; }
 
-    public Calculator(IDisplay display, IKeyboard keyboard, Cpu cpu)
+    public Calculator(IDisplay iDisplay, IKeyboard iKeyboard, ICpu iCpu)
     {
-        Display = display;
-        Keyboard = keyboard;
+        Display = iDisplay;
+        Keyboard = iKeyboard;
 
-        this.cpu = cpu;
+        cpu = iCpu;
+
+        cpu.ClearEvent += Display.Clear;
+        cpu.DataEvent += Display.AddNumber;
+        cpu.DecimalEvent += Display.SetDecimal;
+        cpu.ErrorEvent += Display.SetError;
+        cpu.NegativeEvent += Display.SetNegative;
+        cpu.NumberEvent += Display.Add;
+
+        Keyboard.KeyHandlerEvent += cpu.Process;
     }
 }
