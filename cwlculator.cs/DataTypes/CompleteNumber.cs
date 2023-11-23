@@ -24,7 +24,7 @@ public record CompleteNumber(IEnumerable<Number> Integral, IEnumerable<Number>? 
             Number.Eight => 8,
             Number.Nine => 9,
             _ => 0
-        }).Aggregate((acc, cur) => acc + cur);
+        }).Aggregate((acc, cur) => acc * 10 + cur);
         var dec = number.Decimal?.Select(n => n switch
         {
             Number.One => 1,
@@ -37,10 +37,10 @@ public record CompleteNumber(IEnumerable<Number> Integral, IEnumerable<Number>? 
             Number.Eight => 8,
             Number.Nine => 9,
             _ => 0
-        }).Aggregate((acc, cur) => acc + cur) ?? 0;
+        }).Aggregate((acc, cur) => acc * 10 + cur) ?? 0;
 
         var ans = (decimal)@int;
-        ans += (decimal)dec / (number.Decimal?.Count() ?? 1);
+        ans += dec / (decimal)Math.Pow(10, number.Decimal?.Count() ?? 0);
         if (number.IsNegative) ans *= -1;
         return ans;
     }
