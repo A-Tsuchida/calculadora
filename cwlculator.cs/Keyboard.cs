@@ -35,6 +35,7 @@ public class Keyboard : IKeyboard
             throw new ArgumentException($"There is already a key with the symbol '{key.Symbol}' in {nameof(Keyboard)}.", nameof(key));
 
         keys = keys.Append(key);
+        key.KeyHandlerEvent += keyHandler;
     }
 
     public void Remove(IKey key)
