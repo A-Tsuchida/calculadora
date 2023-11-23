@@ -68,21 +68,21 @@ public class Cpu : ICpu
 
     public virtual void Process(OpCode key)
     {
-        if (error && key is not OpCode.Control { Value: Control.On })
+        if (error && key is not Control.On)
             return;
 
         switch (key)
         {
-            case OpCode.Control co:
-                if (!isOn && co is not { Value: Control.On})
+            case Control co:
+                if (!isOn && co is not Control.On)
                     return;
-                ProcessControl(co.Value);
+                ProcessControl(co);
                 break;
-            case OpCode.Number nu:
-                ProcessNumber(nu.Value);
+            case Number nu:
+                ProcessNumber(nu);
                 break;
-            case OpCode.Operation op:
-                ProcessOperation(op.Value);
+            case Operation op:
+                ProcessOperation(op);
                 break;
         }
     }
