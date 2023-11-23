@@ -124,8 +124,8 @@ public class Cpu : ICpu
                     );
 
                     (accumulatorIntegral, accumulatorDecimal, isAccumulatorNegative) =
-                    (currentIntegral,     currentDecimal,     isCurrentNegative) =
-                    (memoryIntegral,      memoryDecimal,      isMemoryNegative) =
+                    (currentIntegral, currentDecimal, isCurrentNegative) =
+                    (memoryIntegral, memoryDecimal, isMemoryNegative) =
                         ans;
                 }
                 catch
@@ -163,7 +163,7 @@ public class Cpu : ICpu
 
                 break;
             case Control.Decimal:
-                currentDecimal ??= [ new Number.GhostZero() ];
+                currentDecimal ??= [new Number.GhostZero()];
                 break;
             case Control.InvertSignal:
                 isCurrentNegative = !isCurrentNegative;
@@ -187,19 +187,19 @@ public class Cpu : ICpu
                 if (number is Number.Zero)
                     return;
                 
-                currentIntegral = [ number ];
+                currentIntegral = [number];
                 resetCurrent = false;
             }
             else
             {
                 currentIntegral = currentIntegral.Append(number);
-                resetCurrent    = false;
+                resetCurrent = false;
             }
         }
         else
         {
             currentIntegral = currentIntegral.ElementAt(0) is Number.GhostZero
-                            ? ([ number ])
+                            ? ([number])
                             : currentIntegral.Append(number);
         }
         numberHandler?.Invoke(number);
@@ -235,10 +235,10 @@ public class Cpu : ICpu
             }
         }
 
-        accumulatorIntegral   = currentIntegral;
-        accumulatorDecimal    = currentDecimal;
+        accumulatorIntegral = currentIntegral;
+        accumulatorDecimal = currentDecimal;
         isAccumulatorNegative = isCurrentNegative;
-        resetCurrent          = true;
+        resetCurrent = true;
 
         this.operation = operation;
     }
@@ -259,19 +259,19 @@ public class Cpu : ICpu
     {
         if (option == ResetOption.All || option == ResetOption.Entry)
         {
-            currentIntegral = [ new Number.GhostZero() ];
+            currentIntegral = [new Number.GhostZero()];
             currentDecimal = null;
             resetCurrent = false;
         }
         if (option == ResetOption.All || option == ResetOption.Memory)
         {
-            memoryIntegral = [ new Number.GhostZero() ];
+            memoryIntegral = [new Number.GhostZero()];
             memoryDecimal = null;
             isMemoryNegative = false;
         }
         if (option == ResetOption.All)
         {
-            accumulatorIntegral = [ new Number.GhostZero() ];
+            accumulatorIntegral = [new Number.GhostZero()];
             accumulatorDecimal = null;
             isAccumulatorNegative = false;
             error = false;
