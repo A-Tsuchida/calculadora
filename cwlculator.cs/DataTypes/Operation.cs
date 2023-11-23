@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Calculator.DataTypes;
-public abstract class Operation
+public abstract record Operation : OpCode
 {
-    public class Multiplication : Operation;
-    public class Division       : Operation;
-    public class Sum            : Operation;
-    public class Subtraction    : Operation;
+    public record Multiplication : Operation;
+    public record Division       : Operation;
+    public record Sum            : Operation;
+    public record Subtraction    : Operation;
 }

@@ -6,21 +6,21 @@ using System.Threading.Tasks;
 
 namespace Calculator.DataTypes;
 
-public abstract class Number
+public abstract record Number : OpCode
 {
 
     /// <summary>
     /// Used for when there's no actual number
     /// </summary>
-    public class GhostZero : Zero;
-    public class Zero      : Number;
-    public class One       : Number;
-    public class Two       : Number;
-    public class Three     : Number;
-    public class Four      : Number;
-    public class Five      : Number;
-    public class Six       : Number;
-    public class Seven     : Number;
-    public class Eight     : Number;
-    public class Nine      : Number;
+    public record GhostZero : Zero;
+    public record Zero      : Number;
+    public record One       : Number;
+    public record Two       : Number;
+    public record Three     : Number;
+    public record Four      : Number;
+    public record Five      : Number;
+    public record Six       : Number;
+    public record Seven     : Number;
+    public record Eight     : Number;
+    public record Nine      : Number;
 }
