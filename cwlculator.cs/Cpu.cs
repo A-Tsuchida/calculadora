@@ -14,6 +14,7 @@ public class Cpu : ICpu
     private ClearHandler?    clearHandler;
 
     private Operation? operation;
+    private bool resetOperation;
 
     protected IEnumerable<Number>  memoryIntegral = [ new Number.GhostZero() ];
     protected IEnumerable<Number>? memoryDecimal;
@@ -137,21 +138,28 @@ public class Cpu : ICpu
                 if (operation is null)
                     return;
 
+                try
+                {
                 CompleteNumber
                     a = new(accumulatorIntegral, accumulatorDecimal, isAccumulatorNegative),
                     b = new(currentIntegral,     currentDecimal,     isCurrentNegative);
 
                 var result = Calculate(this.operation, a, b);
 
-                (accumulatorIntegral, accumulatorDecimal, isAccumulatorNegative) =
-                (currentIntegral,     currentDecimal,     isCurrentNegative) =
-                    result;
+                    (accumulatorIntegral, accumulatorDecimal, isAccumulatorNegative) = result;
 
                 resetCurrent = true;
-                operation    = null;
 
                 clearHandler?.Invoke();
                 dataHandler?.Invoke(result.Integral, result.Decimal, result.IsNegative);
+                }
+                catch
+                {
+                    error = true;
+                    errorHandler?.Invoke();
+                    // I could not return here but, eh, I don't want to
+                    return;
+                }
 
                 break;
             case Control.Decimal:
@@ -199,6 +207,8 @@ public class Cpu : ICpu
 
     protected virtual void ProcessOperation(Operation operation)
     {
+        if (resetOperation) this.operation = null;
+
         if (this.operation is not null)
         {
             CompleteNumber
@@ -266,6 +276,7 @@ public class Cpu : ICpu
             isAccumulatorNegative = false;
             error = false;
             operation = null;
+            resetOperation = false;
         }
     }
 
