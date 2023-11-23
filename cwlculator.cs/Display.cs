@@ -79,9 +79,9 @@ public class Display(int maxDigitCount) : IDisplay
     protected virtual void Print()
     {
         if (hasError)
-            Write("\u001B[32m[E] ");
+            Write("\u001B[31m[E] ");
         else
-            Write("\u001B[33m");
+            Write("\u001B[32m");
 
         if (isNumberNegative)
             Write("-");
